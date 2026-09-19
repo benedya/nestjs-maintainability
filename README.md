@@ -11,7 +11,7 @@ Static maintainability and coupling metrics for NestJS codebases — per module,
 npx nestjs-maintainability analyze
 ```
 
-![nestjs-maintainability analyze output](doc/analyze-output.svg)
+![nestjs-maintainability analyze output](https://raw.githubusercontent.com/benedya/nestjs-maintainability/main/doc/analyze-output.png)
 
 <details><summary>Text version</summary>
 
@@ -67,28 +67,23 @@ npm install --save-dev nestjs-maintainability
 
 Requires **Node ≥ 20**. Ships ESM and CJS builds with TypeScript types.
 
+Installing puts the `nestjs-maintainability` binary on your project's
+`node_modules/.bin`. The examples below assume you have installed the package as above;
+`npx nestjs-maintainability` also works without installing anything.
+
 ```bash
 # analyse the current project
-npx nest-ml analyze
+npx nestjs-maintainability analyze
 
 # drill into one module
-npx nest-ml analyze --module OrdersModule
+npx nestjs-maintainability analyze --module OrdersModule
 
 # what breaks if I change this?
-npx nest-ml analyze --what-if OrdersModule
+npx nestjs-maintainability analyze --what-if OrdersModule
 
 # lock in today's scores, then gate every PR against them
-npx nest-ml baseline write
-npx nest-ml diff
-```
-
-A minimal CI job:
-
-```yaml
-- run: npx nest-ml diff              # fails only on regression
-- run: npx nest-ml analyze -f sarif -o nest-ml.sarif
-- uses: github/codeql-action/upload-sarif@v3
-  with: { sarif_file: nest-ml.sarif }
+npx nestjs-maintainability baseline write
+npx nestjs-maintainability diff
 ```
 
 ---
@@ -316,37 +311,39 @@ composes. Dropped modules and the pattern that matched each one appear in
 
 Two things to keep in mind: it **hides, it does not fix**; and because it shrinks `k`, every
 remaining `cᵢ` is renormalised against a smaller `k − 1`, so `meanCoupling` can *rise* even though
-you removed real edges. Change the list in the same commit as `nest-ml baseline write`.
+you removed real edges. Change the list in the same commit as `nestjs-maintainability baseline write`.
 
 ---
 
 ## 5. CLI
 
-Both `nestjs-maintainability` and the short alias `nest-ml` are installed.
+The `nestjs-maintainability` binary is installed with the package. It is a local
+binary: run it from an npm script, via `npx` inside the installed project, or install
+globally to call it anywhere.
 
 ```
-nest-ml analyze [path]                 # default command
+nestjs-maintainability analyze [path]            # default command
   -f, --format json|table|markdown|html|sarif|dot
   -o, --out <file>
   -c, --config <path>
-  -m, --module <name>                  # drill into one module
-      --what-if <name>                 # blast-radius simulation
-      --fail-under <n>                 # exit 1 below n
-      --json-summary                   # one line, for CI logs
-      --verbose                        # every violation and warning
+  -m, --module <name>                            # drill into one module
+      --what-if <name>                           # blast-radius simulation
+      --fail-under <n>                           # exit 1 below n
+      --json-summary                             # one line, for CI logs
+      --verbose                                  # every violation and warning
       --tsconfig <path>  --root-module <path>
       --include <glob...>  --exclude <glob...>
-      --exclude-module <pattern...>    # drop whole modules, e.g. AppModule
-      --no-type-only                   # drop type-only imports from the graph
+      --exclude-module <pattern...>              # drop whole modules, e.g. AppModule
+      --no-type-only                             # drop type-only imports from the graph
       --infer-events  --infer-cqrs  --infer-http  --no-infer-entities
       --no-cache  --no-color  -q, --quiet
 
-nest-ml baseline write [path]          # snapshot current scores
-nest-ml diff [baseline] [path]         # compare; exit 1 on regression
-      --tolerance <n>                  # ignore drops smaller than n points
+nestjs-maintainability baseline write [path]     # snapshot current scores
+nestjs-maintainability diff [baseline] [path]    # compare; exit 1 on regression
+      --tolerance <n>                            # ignore drops smaller than n points
       --format table|json
 
-nest-ml graph [path] --out g.dot       # Graphviz export
+nestjs-maintainability graph [path] --out g.dot  # Graphviz export
 ```
 
 Exit codes: **0** clean, **1** a gate or the ratchet failed, **2** an error.
@@ -358,8 +355,8 @@ uninstalled inside a week. One that says "you were at 42, this PR takes you to 4
 import that did it" gets kept.
 
 ```bash
-nest-ml baseline write     # commit nestjs-maintainability.baseline.json
-nest-ml diff               # in CI: fails only on regression
+nestjs-maintainability baseline write   # commit nestjs-maintainability.baseline.json
+nestjs-maintainability diff             # in CI: fails only on regression
 ```
 
 ```
@@ -394,8 +391,8 @@ diffs cleanly in review.
 | `dot` | Graphviz. Solid edges are declared `@Module` imports; dashed red edges are dependencies no imports array declares. |
 
 ```bash
-nest-ml analyze -f html -o maintainability.html
-nest-ml graph --out modules.dot && dot -Tsvg modules.dot -o modules.svg
+nestjs-maintainability analyze -f html -o maintainability.html
+nestjs-maintainability graph --out modules.dot && dot -Tsvg modules.dot -o modules.svg
 ```
 
 ---
