@@ -1,6 +1,6 @@
 {
   "name": "nestjs-maintainability",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Static maintainability and coupling metrics for NestJS codebases, per module, per file and app-wide.",
   "keywords": [
     "nestjs",
